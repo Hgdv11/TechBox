@@ -10,12 +10,13 @@ import {
 import { Camera } from "expo-camera";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from "@react-navigation/native";
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../utils/firebaseConfig'; 
 
 export default function Register() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scan, setScan] = useState(false);
   const [result, setResult] = useState(null);
-
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -25,21 +26,33 @@ export default function Register() {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    const userIsValid = data === "usuario1";
+  const handleBarCodeScanned = async ({ type, data }) => {
+    setScan(false);
 
-    if (userIsValid) {
-      setResult(data);
-      setScan(false);
-      navigation.navigate("Home");
-    } else {
-      Alert.alert(
-        "QR no válido",
-        "Por favor, escanee un QR válido o contacte a soporte.",
-        [{ text: "OK" }]
-      );
+    try {
+      const userData = JSON.parse(data);
+      console.log(userData);
+      const usersRef = collection(db, "usuarios");
+      const q = query(usersRef, where("id", "==", (userData.id)), where("name", "==", userData.name), where("password", "==", userData.password));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        Alert.alert("Usuario no encontrado", "Las credenciales proporcionadas no coinciden con nuestros registros.");
+        setScan(true);
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        setResult(doc.data().name);
+        Alert.alert("Bienvenido", `Bienvenido ${doc.data().name}`);
+        navigation.navigate("Home");
+      });
+    } catch (error) {
+      Alert.alert("Error", "Hubo un error al procesar el código QR. Asegúrate de que el formato sea correcto.");
+      setScan(true);
     }
-  };
+};
+
 
   if (hasPermission === null) {
     return <Text>Solicitando permiso de cámara</Text>;
@@ -96,32 +109,32 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#4fd1c5", // bg-teal-400
+    backgroundColor: "#4fd1c5",
     padding: 16,
   },
   logo: {
-    width: 128, // w-32
-    height: 128, // h-32
-    borderRadius: 9999, // rounded-full
-    marginBottom: 16, // mb-4
+    width: 128, 
+    height: 128, 
+    borderRadius: 9999, 
+    marginBottom: 16, 
   },
   welcomeText: {
-    fontSize: 18, // text-lg
-    color: "#ffffff", // text-white
-    marginBottom: 16, // mb-4
+    fontSize: 18, 
+    color: "#ffffff", 
+    marginBottom: 16, 
   },
   loginButton: {
-    backgroundColor: "#319795", // bg-teal-600
-    padding: 8, // p-2
-    borderRadius: 4, // rounded
+    backgroundColor: "#319795", 
+    padding: 8, 
+    borderRadius: 4, 
   },
   loginButtonText: {
-    fontSize: 18, // text-lg
-    color: "#ffffff", // text-white
+    fontSize: 18, 
+    color: "#ffffff", 
   },
   camera: {
-    width: "100%", // w-full
-    height: "100%", // h-full
+    width: "100%", 
+    height: "100%", 
     flex: 1,
   },
   centeredView: {
@@ -137,7 +150,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   stopScanButtonText: {
-    fontSize: 18, // text-lg
-    color: "#ffffff", // text-white
+    fontSize: 18, 
+    color: "#ffffff", 
   },
 });
