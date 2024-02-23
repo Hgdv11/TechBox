@@ -28,7 +28,6 @@ export default function Register() {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     setScan(false);
-
     try {
       const userData = JSON.parse(data);
       console.log(userData);
@@ -41,18 +40,16 @@ export default function Register() {
         setScan(true);
         return;
       }
-
       querySnapshot.forEach((doc) => {
         setResult(doc.data().name);
         Alert.alert("Bienvenido", `Bienvenido ${doc.data().name}`);
-        navigation.navigate("Home");
+        navigation.navigate("HomeTabs");
       });
     } catch (error) {
       Alert.alert("Error", "Hubo un error al procesar el código QR. Asegúrate de que el formato sea correcto.");
       setScan(true);
     }
 };
-
 
   if (hasPermission === null) {
     return <Text>Solicitando permiso de cámara</Text>;
