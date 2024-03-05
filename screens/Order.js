@@ -8,15 +8,25 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import { db } from "../utils/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  arrayUnion
+} from "firebase/firestore";
+import { auth } from "../utils/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 import QRCode from "react-native-qrcode-svg";
 
 export default function Order() {
   const [material, setMaterial] = useState([]);
   const [showQR, setShowQR] = useState(false);
   const [qrValue, setQrValue] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchMaterial = async () => {
@@ -31,6 +41,16 @@ export default function Order() {
     };
 
     fetchMaterial();
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const updateQuantity = (name, newQuantity) => {
@@ -48,7 +68,12 @@ export default function Order() {
     );
   };
 
-  const finalizeOrder = () => {
+  const finalizeOrder = async () => {
+    if (!user) {
+      Alert.alert("Error", "No hay un usuario autenticado");
+      return;
+    }
+
     const outOfStock = material.some(
       (item) => item.quantity > 0 && item.quantity > item.parts
     );
@@ -77,9 +102,30 @@ export default function Order() {
           },
           {
             text: "Confirmar",
-            onPress: () => {
-              setQrValue(details);
+            onPress: async () => {
+              const jsonDetails = JSON.stringify(details);
+              setQrValue(jsonDetails);
               setShowQR(true);
+
+              try {
+                const userId = user.uid;
+
+                const userRef = doc(db, "solicitudes", userId);
+
+                await setDoc(userRef, {
+                  pedidos: arrayUnion({
+                    details: jsonDetails,
+                    createdAt: new Date(),
+                    status: "En uso", 
+                    qrCode: jsonDetails 
+                  }),
+                }, { merge: true });
+
+                Alert.alert("Pedido realizado", "Tu pedido ha sido agregado exitosamente.");
+              } catch (e) {
+                console.error("Error al agregar o actualizar el pedido en el usuario: ", e);
+                Alert.alert("Error", "No se pudo realizar el pedido.");
+              }
             },
           },
         ]
@@ -87,6 +133,11 @@ export default function Order() {
     } else {
       Alert.alert("Error", "No has seleccionado ningún producto.");
     }
+  };
+
+  const closeQR = () => {
+    setShowQR(false);
+    setMaterial(material.map(item => ({ ...item, quantity: 0 })));
   };
 
   const images = {
@@ -136,20 +187,27 @@ export default function Order() {
       >
         <Text style={styles.finalizeOrderButtonText}>Finalizar pedido</Text>
       </TouchableOpacity>
-      {showQR && (
-        <View style={styles.qrContainer}>
+      <Modal visible={showQR} transparent={true}>
+        <View style={styles.modalView}>
           <QRCode value={qrValue} size={200} />
-          <Text style={styles.qrText}>Tu pedido</Text>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={closeQR}
+          >
+            <Text style={styles.closeButtonText}>Cerrar</Text>
+          </TouchableOpacity>
         </View>
-      )}
+      </Modal>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     padding: 16,
     alignItems: "center",
+    marginTop: 30,
   },
   headerText: {
     fontSize: 24,
@@ -212,5 +270,21 @@ const styles = StyleSheet.create({
   qrText: {
     marginTop: 12,
     textAlign: "center",
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#2196F3',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
 });

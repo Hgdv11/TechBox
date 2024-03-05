@@ -1,15 +1,16 @@
 const QRCode = require('qrcode');
 
-// Define el usuario y la password
-const id = 4;
-const name = 'Santiago Armendariz';
+// Define el correo electrónico y la contraseña
+const username = "Santiago Armendariz";
+const email = 'santiago@example.com';
 const password = '123456';
 
-// Crea un objeto con el usuario y la password
+// Crea un objeto con el correo electrónico y la contraseña
 const datos = {
-    id: id.toString(),
-    name: name,
-  password: password
+
+  email: email,
+  password: password,
+  username: username,
 };
 
 // Convierte el objeto a una cadena JSON
@@ -23,8 +24,8 @@ QRCode.toDataURL(datosEnJson, function (err, url) {
 });
 
 // Opcionalmente, genera el código QR y guárdalo como un archivo
-QRCode.toFile('User4.png', datosEnJson, function (err) {
+QRCode.toFile(username + '.png', datosEnJson, function (err) {
   if (err) console.error(err);
   console.log('Código QR guardado como archivo');
-  // Ahora tienes el archivo 'codigoQR.png' en tu directorio actual.
+  // Ahora tienes el archivo 'User1.png' en tu directorio actual.
 });

@@ -10,7 +10,8 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="HomeTabs" component={HomeTabs} />
+        <Stack.Screen name="Register" component={Register} options={{ headerShown: false }}/>
+        <Stack.Screen name="HomeTabs" component={HomeTabs}  options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

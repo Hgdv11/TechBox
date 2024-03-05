@@ -10,14 +10,13 @@ import {
 import { Camera } from "expo-camera";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from "@react-navigation/native";
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../utils/firebaseConfig'; 
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"; 
 
 export default function Register() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scan, setScan] = useState(false);
-  const [result, setResult] = useState(null);
   const navigation = useNavigation();
+  const auth = getAuth(); 
 
   useEffect(() => {
     (async () => {
@@ -30,26 +29,26 @@ export default function Register() {
     setScan(false);
     try {
       const userData = JSON.parse(data);
-      console.log(userData);
-      const usersRef = collection(db, "usuarios");
-      const q = query(usersRef, where("id", "==", (userData.id)), where("name", "==", userData.name), where("password", "==", userData.password));
-      const querySnapshot = await getDocs(q);
       
-      if (querySnapshot.empty) {
-        Alert.alert("Usuario no encontrado", "Las credenciales proporcionadas no coinciden con nuestros registros.");
-        setScan(true);
-        return;
-      }
-      querySnapshot.forEach((doc) => {
-        setResult(doc.data().name);
-        Alert.alert("Bienvenido", `Bienvenido ${doc.data().name}`);
-        navigation.navigate("HomeTabs");
-      });
+      signInWithEmailAndPassword(auth, userData.email, userData.password)
+        .then((userCredential) => {
+          
+          var user = userCredential.user;
+          // Usa userData.username en lugar de user.displayName
+          Alert.alert("Bienvenido", `Bienvenido ${userData.username || 'Usuario'}`); 
+          navigation.navigate("HomeTabs");
+        })
+        .catch((error) => {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          Alert.alert("Error", errorMessage);
+          setScan(true);
+        });
     } catch (error) {
       Alert.alert("Error", "Hubo un error al procesar el código QR. Asegúrate de que el formato sea correcto.");
       setScan(true);
     }
-};
+  };
 
   if (hasPermission === null) {
     return <Text>Solicitando permiso de cámara</Text>;

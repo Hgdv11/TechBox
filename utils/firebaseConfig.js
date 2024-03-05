@@ -1,8 +1,8 @@
-
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; 
+import { getFirestore } from "firebase/firestore";
+import { getAuth, initializeAuth } from "firebase/auth";
 
-
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAXZdVllDQFU8N-tn2-5aPz1pc7npjZGPY",
   authDomain: "techbox-be7c3.firebaseapp.com",
@@ -14,10 +14,13 @@ const firebaseConfig = {
   measurementId: "G-S1V9ZZCFH0",
 };
 
-
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
-
+// Obtiene la instancia de Firestore
 const db = getFirestore(app);
 
-export { db }; 
+// Inicializa Firebase Auth con AsyncStorage como método de persistencia
+const auth = initializeAuth(app);
+
+export { db, auth };
