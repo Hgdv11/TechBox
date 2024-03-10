@@ -10,37 +10,31 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { db } from "../utils/firebaseConfig";
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  arrayUnion
-} from "firebase/firestore";
 import { auth } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import QRCode from "react-native-qrcode-svg";
+import { getDatabase, ref, onValue, set, push, update } from "firebase/database";
 
 export default function Order() {
   const [material, setMaterial] = useState([]);
   const [showQR, setShowQR] = useState(false);
-  const [qrValue, setQrValue] = useState("");
+  const [qrData, setQrData] = useState("");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchMaterial = async () => {
-      const querySnapshot = await getDocs(collection(db, "material"));
-      const fetchedMaterial = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().name,
-        parts: doc.data().parts,
+    const database = getDatabase();
+    const materialRef = ref(database, 'material');
+    onValue(materialRef, (snapshot) => {
+      const data = snapshot.val();
+      const fetchedMaterial = Object.keys(data).map((key) => ({
+        id: key,
+        name: data[key].name,
+        parts: data[key].parts,
         quantity: 0,
       }));
       setMaterial(fetchedMaterial);
-    };
-
-    fetchMaterial();
+      setQrData(qrData);
+    });
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -88,52 +82,53 @@ export default function Order() {
 
     const details = material
       .filter((item) => item.quantity > 0)
-      .map((item) => `${item.name}: ${item.quantity}`)
-      .join(", ");
+      .map((item) => `${item.name}:${item.quantity}`)
+      .join(",");
 
-    if (details) {
-      Alert.alert(
-        "Confirmar Pedido",
-        "¿Estás seguro de que quieres finalizar el pedido?",
-        [
-          {
-            text: "Cancelar",
-            style: "cancel",
-          },
-          {
-            text: "Confirmar",
-            onPress: async () => {
-              const jsonDetails = JSON.stringify(details);
-              setQrValue(jsonDetails);
-              setShowQR(true);
-
-              try {
-                const userId = user.uid;
-
-                const userRef = doc(db, "solicitudes", userId);
-
-                await setDoc(userRef, {
-                  pedidos: arrayUnion({
-                    details: jsonDetails,
-                    createdAt: new Date(),
-                    status: "En uso", 
-                    qrCode: jsonDetails 
-                  }),
-                }, { merge: true });
-
-                Alert.alert("Pedido realizado", "Tu pedido ha sido agregado exitosamente.");
-              } catch (e) {
-                console.error("Error al agregar o actualizar el pedido en el usuario: ", e);
-                Alert.alert("Error", "No se pudo realizar el pedido.");
-              }
+      if (details) {
+        Alert.alert(
+          "Confirmar Pedido",
+          "¿Estás seguro de que quieres finalizar el pedido?",
+          [
+            {
+              text: "Cancelar",
+              style: "cancel",
             },
-          },
-        ]
-      );
-    } else {
-      Alert.alert("Error", "No has seleccionado ningún producto.");
-    }
-  };
+            {
+              text: "Confirmar",
+              onPress: async () => {
+                try {
+                  const database = getDatabase();
+                  const orderRef = ref(database, `loans/${user.uid}/orders`);
+                  const newOrderRef = push(orderRef);
+    
+                  await set(newOrderRef, {
+                    details: details,
+                    createdAt: new Date().toString(),
+                    status: "En uso"
+                  });
+    
+                  const orderId = newOrderRef.key; // Obtén el ID de la orden creada
+                  const newQrData = `Tipo:Prestamo,User:${user.uid},Solicitud:${orderId},${details}`;
+                  setQrData(newQrData); // Aquí se establece el valor del QR
+                  setShowQR(true); // Aquí se muestra el QR
+    
+                  // Actualiza la orden con los datos del QR
+                  await update(newOrderRef, { qrCode: newQrData });
+    
+                  Alert.alert("Pedido realizado", "Tu pedido ha sido agregado exitosamente.");
+                } catch (e) {
+                  console.error("Error al agregar o actualizar el pedido en el usuario: ", e);
+                  Alert.alert("Error", "No se pudo realizar el pedido.");
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert("Error", "No has seleccionado ningún producto.");
+      }
+    };  
 
   const closeQR = () => {
     setShowQR(false);
@@ -189,7 +184,7 @@ export default function Order() {
       </TouchableOpacity>
       <Modal visible={showQR} transparent={true}>
         <View style={styles.modalView}>
-          <QRCode value={qrValue} size={200} />
+          <QRCode value={qrData} size={200} />
           <TouchableOpacity
             style={styles.closeButton}
             onPress={closeQR}

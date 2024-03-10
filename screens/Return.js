@@ -8,18 +8,11 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { db } from "../utils/firebaseConfig";
-import {
-  doc,
-  onSnapshot,
-  updateDoc,
-  arrayRemove,
-  arrayUnion,
-} from "firebase/firestore";
 import { auth } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import QRCode from "react-native-qrcode-svg";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { getDatabase, ref, onValue, set, remove, update } from "firebase/database";
 
 export default function Return() {
   const [orders, setOrders] = useState([]);
@@ -37,10 +30,16 @@ export default function Return() {
 
   useEffect(() => {
     if (user) {
-      const userRef = doc(db, "solicitudes", user.uid);
-      const unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
-        if (doc.exists()) {
-          setOrders(doc.data().pedidos || []);
+      const database = getDatabase();
+      const userRef = ref(database, `loans/${user.uid}/orders`);
+      const unsubscribeSnapshot = onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const fetchedOrders = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key]
+          }));
+          setOrders(fetchedOrders);
         } else {
           console.log(`No se encontró el documento con el ID: ${user.uid}`);
         }
@@ -53,21 +52,13 @@ export default function Return() {
   const handleReturn = async (order) => {
     setCurrentQR(JSON.stringify(order.qrCode) || ""); 
     setShowQR(true); 
-
+  
     try {
-      const userRef = doc(db, "solicitudes", user.uid);
-
-      await updateDoc(userRef, {
-        pedidos: arrayRemove(order),
-      });
-
-      await updateDoc(userRef, {
-        pedidos: arrayUnion({
-          ...order,
-          status: "Devolución",
-        }),
-      });
-
+      const database = getDatabase();
+      const orderRef = ref(database, `loans/${user.uid}/orders/${order.id}`);
+  
+      await update(orderRef, { status: "Devolución" });
+  
       Alert.alert(
         "Pedido devuelto",
         "El pedido ha sido marcado para devolución."
