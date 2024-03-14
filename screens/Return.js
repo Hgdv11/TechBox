@@ -39,6 +39,7 @@ export default function Return() {
             id: key,
             ...data[key]
           }));
+
           setOrders(fetchedOrders);
         } else {
           console.log(`No se encontró el documento con el ID: ${user.uid}`);
@@ -50,14 +51,17 @@ export default function Return() {
   }, [user]);
 
   const handleReturn = async (order) => {
-    setCurrentQR(JSON.stringify(order.qrCode) || ""); 
+    const details = order.details; // Asegúrate de que 'details' exista en 'order'
+    const orderId = order.id; // Asegúrate de que 'id' exista en 'order'
+    const qrData = `Tipo:Devo,Solicitud:${orderId},${details}`;
+    setCurrentQR(qrData); 
     setShowQR(true); 
   
     try {
       const database = getDatabase();
-      const orderRef = ref(database, `loans/${user.uid}/orders/${order.id}`);
+      const orderRef = ref(database, `loans/${user.uid}/orders/${orderId}`);
   
-      await update(orderRef, { status: "Devolución" });
+      await update(orderRef, { status: "Devolución", qrCode: qrData });
   
       Alert.alert(
         "Pedido devuelto",
@@ -80,20 +84,24 @@ export default function Return() {
               Fecha: {new Date(order.createdAt.seconds * 1000).toLocaleString()}
             </Text>
             <Text>Estatus: {order.status}</Text>
-            <TouchableOpacity
-              style={styles.returnButton}
-              onPress={() => handleReturn(order)}
-            >
-              <Text style={styles.returnButtonText}>Regresar</Text>
-            </TouchableOpacity>
+            {order.status === "Devuelto" ? (
+              <Text style={styles.returnedText}>Préstamo devuelto exitosamente</Text>
+            ) : (
+              <TouchableOpacity
+                style={styles.returnButton}
+                onPress={() => handleReturn(order)}
+              >
+                <Text style={styles.returnButtonText}>Regresar</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ))
       ) : (
         <View style={styles.noOrdersContainer}>
-  <Icon name="optin-monster" size={100} color="#333" style={styles.icon} />
-  <Text style={styles.noOrdersText}>No tienes solicitudes pendientes</Text>
-</View>
-    )}
+          <Icon name="optin-monster" size={100} color="#333" style={styles.icon} />
+          <Text style={styles.noOrdersText}>No tienes solicitudes pendientes</Text>
+        </View>
+      )}
       <Modal visible={showQR} transparent={true}>
         <View style={styles.modalView}>
           <QRCode value={currentQR} size={200} />

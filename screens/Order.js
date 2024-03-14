@@ -109,7 +109,7 @@ export default function Order() {
                   });
     
                   const orderId = newOrderRef.key; // Obtén el ID de la orden creada
-                  const newQrData = `Tipo:Prestamo,User:${user.uid},Solicitud:${orderId},${details}`;
+                  const newQrData = `Tipo:Prest,Solicitud:${orderId},${details}`;
                   setQrData(newQrData); // Aquí se establece el valor del QR
                   setShowQR(true); // Aquí se muestra el QR
     
