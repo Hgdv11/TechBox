@@ -46,7 +46,15 @@ export default function Order() {
 
     return () => unsubscribe();
   }, []);
-
+  const obtenerFechaActualFormateada = () => {
+    const fechaActual = new Date();
+    
+    const dia = fechaActual.getDate().toString().padStart(2, '0');
+    const mes = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fechaActual.getFullYear().toString().slice(2);
+    const fechaFormateada = `${dia}-${mes}-${anio}`;
+    return fechaFormateada;
+  };
   const updateQuantity = (name, newQuantity) => {
     setMaterial(
       material.map((item) => {
@@ -104,12 +112,12 @@ export default function Order() {
     
                   await set(newOrderRef, {
                     details: details,
-                    createdAt: new Date().toString(),
+                    createdAt: obtenerFechaActualFormateada(),
                     status: "En uso"
                   });
     
                   const orderId = newOrderRef.key; // Obtén el ID de la orden creada
-                  const newQrData = `Tipo:Prest,Solicitud:${orderId},${details}`;
+                  const newQrData = `Ti:Prest,Us:${user.uid},So:${orderId},${details}`;
                   setQrData(newQrData); // Aquí se establece el valor del QR
                   setShowQR(true); // Aquí se muestra el QR
     
