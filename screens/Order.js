@@ -88,11 +88,21 @@ export default function Order() {
       return;
     }
 
+      //Abreviaturas
+    const nameToAbbreviation = {
+      'Adaptador': 'Ad',
+      'Ethernet': 'Et',
+      'Extension': 'Ex',
+      'HDMI': 'HD',
+      // Agrega aquí cualquier otro mapeo que necesites
+    };
+
     const details = material
       .filter((item) => item.quantity > 0)
-      .map((item) => `${item.name}:${item.quantity}`)
+      .map((item) => `${nameToAbbreviation[item.name] || item.name}:${item.quantity}`)
       .join(",");
 
+      
       if (details) {
         Alert.alert(
           "Confirmar Pedido",
@@ -117,7 +127,7 @@ export default function Order() {
                   });
     
                   const orderId = newOrderRef.key; // Obtén el ID de la orden creada
-                  const newQrData = `Ti:Prest,Us:${user.uid},So:${orderId},${details}`;
+                  const newQrData = `Pre,Us:${user.uid},So:${orderId},${details}`;
                   setQrData(newQrData); // Aquí se establece el valor del QR
                   setShowQR(true); // Aquí se muestra el QR
     

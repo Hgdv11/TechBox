@@ -53,7 +53,7 @@ export default function Return() {
   const handleReturn = async (order) => {
     const details = order.details; // Asegúrate de que 'details' exista en 'order'
     const orderId = order.id; // Asegúrate de que 'id' exista en 'order'
-    const qrData = `Ti:Devo,Us:${user.uid},So:${orderId},${details}`;
+    const qrData = `Dev,Us:${user.uid},So:${orderId},${details}`;
     setCurrentQR(qrData); 
     setShowQR(true); 
   
