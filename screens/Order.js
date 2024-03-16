@@ -30,6 +30,7 @@ export default function Order() {
         id: key,
         name: data[key].name,
         parts: data[key].parts,
+        available: data[key].available,
         quantity: 0,
       }));
       setMaterial(fetchedMaterial);
@@ -55,19 +56,38 @@ export default function Order() {
     const fechaFormateada = `${dia}-${mes}-${anio}`;
     return fechaFormateada;
   };
+  
+  //Botones para sumar y restar cantidad
   const updateQuantity = (name, newQuantity) => {
     setMaterial(
       material.map((item) => {
         if (item.name === name) {
-          const updatedQuantity = Math.max(
-            0,
-            Math.min(newQuantity, item.parts)
-          );
-          return { ...item, quantity: updatedQuantity };
+          if (item.available > 0) {
+            const updatedQuantity = Math.max(
+              0,
+              Math.min(newQuantity, item.available)
+            );
+            return { ...item, quantity: updatedQuantity };
+          } else {
+            Alert.alert("Error", "No se puede usar este material porque no hay disponible.");
+            return item;
+          }
         }
         return item;
       })
     );
+  };
+
+  const checkAvailability = (name) => {
+    material.forEach((item) => {
+      if (item.name === name) {
+        if (item.available === 0) {
+          Alert.alert("Error", "No se puede usar este material porque no hay disponible.");
+        } else {
+          Alert.alert("Disponible", `Hay ${item.available} disponibles de este material.`);
+        }
+      }
+    });
   };
 
   const finalizeOrder = async () => {
@@ -77,7 +97,7 @@ export default function Order() {
     }
 
     const outOfStock = material.some(
-      (item) => item.quantity > 0 && item.quantity > item.parts
+      (item) => item.quantity > 0 && item.quantity > item.available
     );
 
     if (outOfStock) {
@@ -136,7 +156,7 @@ export default function Order() {
     
                   Alert.alert("Pedido realizado", "Tu pedido ha sido agregado exitosamente.");
                 } catch (e) {
-                  console.error("Error al agregar o actualizar el pedido en el usuario: ", e);
+                  console.error("Error al agregar o actualizar el pedido en el usuario: " + e.toString());
                   Alert.alert("Error", "No se pudo realizar el pedido.");
                 }
               },
@@ -170,28 +190,25 @@ export default function Order() {
             style={styles.cardImage}
           />
           <Text style={styles.cardTitle}>{item.name}</Text>
-          <View style={styles.quantityControls}>
-            <TouchableOpacity
-              onPress={() => updateQuantity(item.name, item.quantity - 1)}
-              style={styles.quantityButton}
-            >
-              <Text>-</Text>
-            </TouchableOpacity>
-            <TextInput
-              style={styles.quantityInput}
-              keyboardType="numeric"
-              onChangeText={(text) =>
-                updateQuantity(item.name, parseInt(text) || 0)
-              }
-              value={String(item.quantity)}
-            />
-            <TouchableOpacity
-              onPress={() => updateQuantity(item.name, item.quantity + 1)}
-              style={styles.quantityButton}
-            >
-              <Text>+</Text>
-            </TouchableOpacity>
-          </View>
+          {item.available > 0 ? (
+            <View style={styles.quantityControls}>
+              <TouchableOpacity
+                onPress={() => updateQuantity(item.name, item.quantity - 1)}
+                style={styles.quantityButton}
+              >
+                <Text>-</Text>
+              </TouchableOpacity>
+              <Text>{item.quantity}</Text>
+              <TouchableOpacity
+                onPress={() => updateQuantity(item.name, item.quantity + 1)}
+                style={styles.quantityButton}
+              >
+                <Text>+</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text>No hay stock disponible</Text>
+          )}
         </View>
       ))}
       <TouchableOpacity
