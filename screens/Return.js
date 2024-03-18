@@ -61,7 +61,7 @@ export default function Return() {
       const database = getDatabase();
       const orderRef = ref(database, `loans/${user.uid}/orders/${orderId}`);
   
-      await update(orderRef, { status: "Devolución", qrCode: qrData });
+      await update(orderRef, { status: "QR de devolución generado", qrCode: qrData });
   
       Alert.alert(
         "Pedido devuelto",
