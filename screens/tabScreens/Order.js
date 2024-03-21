@@ -143,7 +143,7 @@ export default function Order() {
                   await set(newOrderRef, {
                     details: details,
                     createdAt: obtenerFechaActualFormateada(),
-                    status: "En uso"
+                    status: "QR de préstamo generado"
                   });
     
                   const orderId = newOrderRef.key; // Obtén el ID de la orden creada
