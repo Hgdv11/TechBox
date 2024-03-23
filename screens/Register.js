@@ -112,7 +112,7 @@ export default function Register() {
               onPress={() => setScan(true)}
             >
               <Text
-                style={{ fontWeight: "bold", fontSize: "18", color: "#fff" }}
+                style={{ fontWeight: "bold", fontSize: 18, color: "#fff" }}
               >
                 ¡Comienza Ahora!
               </Text>
