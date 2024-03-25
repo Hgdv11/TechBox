@@ -2,14 +2,18 @@ import React from "react";
 import { View, Text, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import CarouselExample from "../../Components/Carrousel";
 
+import { useTranslation } from "react-i18next";
+
 export default function Home() {
+  const {t} = useTranslation();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView style={{ flex: 1 }}>
         {/* Textos de bienvenida */}
         <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeText}>¡Bienvenido a TechBox!</Text>
-          <Text style={styles.tipsText}>Tips para iniciar rápido</Text>
+          <Text style={styles.welcomeText}>{t("home.welcome")}</Text>
+          <Text style={styles.tipsText}>{t("home.tips")}</Text>
         </View>
         {/* Aquí se renderiza el componente Carrousel */}
         <View style={styles.carouselContainer}>
