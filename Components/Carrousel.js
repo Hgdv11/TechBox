@@ -1,26 +1,30 @@
 import React from 'react';
 import { StyleSheet, View, Image, Dimensions, Text } from 'react-native';
 import Swiper from 'react-native-swiper';
+import { useTranslation } from 'react-i18next';
+
 
 const { width, height } = Dimensions.get('window');
 
 const CarouselExample = () => {
+  const { t } = useTranslation();
+
   const slides = [
     {
       image: require('../assets/homeImages/homeRed.png'),
-      text: 'Debajo tienes una barra de navegación, haz clic ahí',
+      text: t('carousel.slides.0.text'),
     },
     {
       image: require('../assets/homeImages/choice.png'),
-      text: 'Selecciona los artículos que necesites',
+      text: t('carousel.slides.1.text'),
     },
     {
       image: require('../assets/homeImages/finalizar.png'),
-      text: 'Hacer clic en el botón de “Finalizar pedido”',
+      text: t('carousel.slides.2.text'),
     },
     {
       image: require('../assets/ready.png'),
-      text: '¡Listo!, solo recuerda devolver tus artículos a tiempo.',
+      text: t('carousel.slides.3.text'),
     },
   ];
 
