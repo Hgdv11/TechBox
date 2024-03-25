@@ -25,9 +25,12 @@ const Drawer = createDrawerNavigator();
 // Drawer Stuff
 
 import CustomDrawer from "./Components/CustomDrawer";
-import SwitchLanguage from "./Components/SwitchLanguage";
+
+import { useTranslation } from "react-i18next"; // Importar hook de traducción
 
 function DrawerGroup() {
+  const { t, i18n } = useTranslation(); // Obtiene la función t de traducción
+
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawer {...props} />}
@@ -39,20 +42,11 @@ function DrawerGroup() {
       }}
     >
       <Drawer.Screen
-        name="Pantalla principal"
+        name={t("tabs.main")}
         component={TabGroup}
         options={{
           drawerIcon: ({ color }) => (
-            <Ionicons name="home" size={22  } color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Cambiar idioma"
-        component={SwitchLanguage}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons name="globe-outline" size={22} color={color} />
+            <Ionicons name="home" size={22} color={color} />
           ),
         }}
       />
@@ -64,20 +58,22 @@ function DrawerGroup() {
 const Tab = createBottomTabNavigator();
 
 function TabGroup() {
+  const { t, i18n } = useTranslation(); // Obtiene la función t de traducción
+
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
         headerStyle: {
-          backgroundColor: "#4FD1C5", 
+          backgroundColor: "#4FD1C5",
         },
-        headerTintColor: "black", 
-        headerTitleAlign: "center", 
+        headerTintColor: "black",
+        headerTitleAlign: "center",
         headerTitleStyle: {
-          fontWeight: "bold"
+          fontWeight: "bold",
         },
         headerLeft: () => (
           <TouchableOpacity
-            style={{ paddingLeft: 10, paddingRight: 10 }} 
+            style={{ paddingLeft: 10, paddingRight: 10 }}
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
           >
             <Ionicons name="reorder-three-outline" size={24} color="black" />
@@ -91,11 +87,12 @@ function TabGroup() {
         ),
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === "Inicio") {
+          if (route.name === t("tabs.uno")) {
+            // Cambia los nombres de las pestañas a las traducciones
             iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Realizar pedido") {
+          } else if (route.name === t("tabs.dos")) {
             iconName = focused ? "cart" : "cart-outline";
-          } else if (route.name === "Devolución") {
+          } else if (route.name === t("tabs.tres")) {
             iconName = focused ? "return-up-back" : "return-up-back-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -103,7 +100,7 @@ function TabGroup() {
       })}
     >
       <Tab.Screen
-        name="Inicio"
+        name={t("tabs.uno")} // Utiliza la traducción para el nombre de la pestaña
         component={Home}
         options={{
           headerShown: true,
@@ -111,7 +108,7 @@ function TabGroup() {
         }}
       />
       <Tab.Screen
-        name="Realizar pedido"
+        name={t("tabs.dos")}
         component={Order}
         options={{
           headerShown: true,
@@ -119,7 +116,7 @@ function TabGroup() {
         }}
       />
       <Tab.Screen
-        name="Devolución"
+        name={t("tabs.tres")}
         component={Return}
         options={{
           headerShown: true,
