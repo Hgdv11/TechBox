@@ -231,7 +231,7 @@ export default function Order() {
         <View style={styles.modalView}>
           <QRCode value={qrData} size={200} />
           <TouchableOpacity style={styles.closeButton} onPress={closeQR}>
-            <Text style={styles.closeButtonText}>{t("order.close")}</Text>
+            <Text style={styles.closeButtonText}>{t("Cerrar")}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

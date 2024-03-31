@@ -87,7 +87,7 @@ const { t } = useTranslation(); // Hook de traducción
             <Text style={styles.cardTitle}>Pedido {index + 1}</Text>
             <Text>{t("return.details")}: {order.details}</Text>
             <Text>
-              {t("return.date")}: {new Date(order.createdAt.seconds * 1000).toLocaleString()}
+              {t("return.date")}: {order.createdAt || 'N/A'}
             </Text>
             <Text>{t("return.status")}: {order.status}</Text>
             {order.status === t("return.returned") ? (
