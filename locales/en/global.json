@@ -1,0 +1,64 @@
+{
+  "home": {
+    "welcome": "Welcome to TechBox!",
+    "tips": "Quick Start Tips"
+  },
+  "carousel": {
+    "slides": [
+      {
+        "text": "Below you have a navigation bar, click there"
+      },
+      {
+        "text": "Select the items you need"
+      },
+      {
+        "text": "Click on the 'Complete order' button"
+      },
+      {
+        "text": "Done!, just remember to return your items on time."
+      }
+    ]
+  },
+  "order": {
+    "chooseItems": "Choose your items",
+    "noStock": "Out of stock",
+    "finalizeOrder": "Place order",
+    "error": "Error",
+    "confirmOrder": "Confirm Order",
+    "confirmOrderMessage": "Are you sure you want to finalize the order?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "notAuthenticated": "No authenticated user",
+    "notEnoughInventory": "Not enough inventory for one or more selected items.",
+    "orderPlaced": "Order placed",
+    "orderAdded": "Your order has been successfully added.",
+    "available": "Available",
+    "availableStock": "There are {{count}} available of this material.",
+    "orderFailed": "Order failed.",
+    "noProductSelected": "No product selected."
+  },
+  "return": {
+    "noPendingRequests": "No pending requests",
+    "returnedSuccessfully": "Loan returned successfully",
+    "return": "Return",
+    "close": "Close",
+    "returned": "Returned",
+    "returnRequestMarked": "The order has been marked for return.",
+    "orderReturned": "Order returned",
+    "qrReturnGenerated": "QR return generated",
+    "returnRequestFailed": "Failed to mark return request",
+    "details": "Details",
+    "date": "Date",
+    "status": "Status"
+  },
+  "tabs": {
+    "uno": "Home",
+    "dos": "Make an order",
+    "tres": "Return",
+    "main": "Main Screen"
+  }, 
+  "drawer": {
+    "switch": "Switch to Español",
+    "logout": "Log out"
+  }
+}

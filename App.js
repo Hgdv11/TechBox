@@ -1,18 +1,13 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import "react-native-gesture-handler";
+import { I18nextProvider } from "react-i18next";
+import i18n from './services/118next';
 
-import Register from "./screens/Register";
-import HomeTabs from "./screens/HomeTabs";
-
-const Stack = createNativeStackNavigator();
+import Navigation from "./Navigation";
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Register" component={Register} options={{ headerShown: false }}/>
-        <Stack.Screen name="HomeTabs" component={HomeTabs}  options={{ headerShown: false }}/>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <I18nextProvider i18n={i18n}>
+      <Navigation />
+    </I18nextProvider>
   );
 }

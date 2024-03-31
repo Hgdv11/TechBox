@@ -8,13 +8,18 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { auth } from "../utils/firebaseConfig";
+import { auth } from "../../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import QRCode from "react-native-qrcode-svg";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { getDatabase, ref, onValue, set, remove, update } from "firebase/database";
+import { getDatabase, ref, onValue, update } from "firebase/database";
+import { useTranslation } from "react-i18next"; // Importar hook de traducción
+
 
 export default function Return() {
+const { t } = useTranslation(); // Hook de traducción
+
+
   const [orders, setOrders] = useState([]);
   const [user, setUser] = useState(null);
   const [showQR, setShowQR] = useState(false); 
@@ -60,38 +65,39 @@ export default function Return() {
     try {
       const database = getDatabase();
       const orderRef = ref(database, `loans/${user.uid}/orders/${orderId}`);
-  
-      await update(orderRef, { status: "QR de devolución generado", qrCode: qrData });
-  
+    
+      await update(orderRef, { status: t("return.qrReturnGenerated"), qrCode: qrData });
+    
       Alert.alert(
-        "Pedido devuelto",
-        "El pedido ha sido marcado para devolución."
+        t("return.orderReturned"),
+        t("return.returnRequestMarked")
       );
     } catch (e) {
       console.error("Error al marcar el pedido para devolución: ", e);
-      Alert.alert("Error", "No se pudo marcar el pedido para devolución.");
+      Alert.alert(t("return.error"), t("return.returnRequestFailed"));
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+    
       {orders.length > 0 ? (
         orders.map((order, index) => (
           <View key={index} style={styles.card}>
             <Text style={styles.cardTitle}>Pedido {index + 1}</Text>
-            <Text>Detalles: {order.details}</Text>
+            <Text>{t("return.details")}: {order.details}</Text>
             <Text>
-              Fecha: {new Date(order.createdAt.seconds * 1000).toLocaleString()}
+              {t("return.date")}: {order.createdAt || 'N/A'}
             </Text>
-            <Text>Estatus: {order.status}</Text>
-            {order.status === "Devuelto" ? (
-              <Text style={styles.returnedText}>Préstamo devuelto exitosamente</Text>
+            <Text>{t("return.status")}: {order.status}</Text>
+            {order.status === t("return.returned") ? (
+              <Text style={styles.returnedText}>{t("return.returnedSuccessfully")}</Text>
             ) : (
               <TouchableOpacity
                 style={styles.returnButton}
                 onPress={() => handleReturn(order)}
               >
-                <Text style={styles.returnButtonText}>Regresar</Text>
+                <Text style={styles.returnButtonText}>{t("return.return")}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -99,7 +105,7 @@ export default function Return() {
       ) : (
         <View style={styles.noOrdersContainer}>
           <Icon name="optin-monster" size={100} color="#333" style={styles.icon} />
-          <Text style={styles.noOrdersText}>No tienes solicitudes pendientes</Text>
+          <Text style={styles.noOrdersText}>{t("return.noPendingRequests")}</Text>
         </View>
       )}
       <Modal visible={showQR} transparent={true}>
@@ -109,7 +115,7 @@ export default function Return() {
             style={styles.closeButton}
             onPress={() => setShowQR(false)}
           >
-            <Text style={styles.closeButtonText}>Cerrar</Text>
+            <Text style={styles.closeButtonText}>{t("return.close")}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

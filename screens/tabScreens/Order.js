@@ -10,12 +10,21 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { auth } from "../utils/firebaseConfig";
+import { useTranslation } from "react-i18next"; // Importar hook de traducción
+import { auth } from "../../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import QRCode from "react-native-qrcode-svg";
-import { getDatabase, ref, onValue, set, push, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  set,
+  push,
+  update,
+} from "firebase/database";
 
 export default function Order() {
+  const { t } = useTranslation(); // Hook de traducción
   const [material, setMaterial] = useState([]);
   const [showQR, setShowQR] = useState(false);
   const [qrData, setQrData] = useState("");
@@ -23,7 +32,7 @@ export default function Order() {
 
   useEffect(() => {
     const database = getDatabase();
-    const materialRef = ref(database, 'material');
+    const materialRef = ref(database, "material");
     onValue(materialRef, (snapshot) => {
       const data = snapshot.val();
       const fetchedMaterial = Object.keys(data).map((key) => ({
@@ -47,17 +56,17 @@ export default function Order() {
 
     return () => unsubscribe();
   }, []);
+
   const obtenerFechaActualFormateada = () => {
     const fechaActual = new Date();
-    
-    const dia = fechaActual.getDate().toString().padStart(2, '0');
-    const mes = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+
+    const dia = fechaActual.getDate().toString().padStart(2, "0");
+    const mes = (fechaActual.getMonth() + 1).toString().padStart(2, "0");
     const anio = fechaActual.getFullYear().toString().slice(2);
     const fechaFormateada = `${dia}-${mes}-${anio}`;
     return fechaFormateada;
   };
-  
-  //Botones para sumar y restar cantidad
+
   const updateQuantity = (name, newQuantity) => {
     setMaterial(
       material.map((item) => {
@@ -69,7 +78,7 @@ export default function Order() {
             );
             return { ...item, quantity: updatedQuantity };
           } else {
-            Alert.alert("Error", "No se puede usar este material porque no hay disponible.");
+            Alert.alert(t("order.error"), t("order.noStock"));
             return item;
           }
         }
@@ -82,9 +91,12 @@ export default function Order() {
     material.forEach((item) => {
       if (item.name === name) {
         if (item.available === 0) {
-          Alert.alert("Error", "No se puede usar este material porque no hay disponible.");
+          Alert.alert(t("order.error"), t("order.noStock"));
         } else {
-          Alert.alert("Disponible", `Hay ${item.available} disponibles de este material.`);
+          Alert.alert(
+            t("order.available"),
+            t("order.availableStock", { count: item.available })
+          );
         }
       }
     });
@@ -92,7 +104,7 @@ export default function Order() {
 
   const finalizeOrder = async () => {
     if (!user) {
-      Alert.alert("Error", "No hay un usuario autenticado");
+      Alert.alert(t("order.error"), t("order.notAuthenticated"));
       return;
     }
 
@@ -101,88 +113,84 @@ export default function Order() {
     );
 
     if (outOfStock) {
-      Alert.alert(
-        "Error",
-        "No hay suficiente inventario para uno o más artículos seleccionados."
-      );
+      Alert.alert(t("order.error"), t("order.notEnoughInventory"));
       return;
     }
 
-      //Abreviaturas
     const nameToAbbreviation = {
-      'Adaptador': 'Ad',
-      'Ethernet': 'Et',
-      'Extension': 'Ex',
-      'HDMI': 'HD',
+      Adaptador: "Ad",
+      Ethernet: "Et",
+      Extension: "Ex",
+      HDMI: "HD",
       // Agrega aquí cualquier otro mapeo que necesites
     };
 
     const details = material
       .filter((item) => item.quantity > 0)
-      .map((item) => `${nameToAbbreviation[item.name] || item.name}:${item.quantity}`)
+      .map(
+        (item) =>
+          `${nameToAbbreviation[item.name] || item.name}:${item.quantity}`
+      )
       .join(",");
 
-      
-      if (details) {
-        Alert.alert(
-          "Confirmar Pedido",
-          "¿Estás seguro de que quieres finalizar el pedido?",
-          [
-            {
-              text: "Cancelar",
-              style: "cancel",
-            },
-            {
-              text: "Confirmar",
-              onPress: async () => {
-                try {
-                  const database = getDatabase();
-                  const orderRef = ref(database, `loans/${user.uid}/orders`);
-                  const newOrderRef = push(orderRef);
-    
-                  await set(newOrderRef, {
-                    details: details,
-                    createdAt: obtenerFechaActualFormateada(),
-                    status: "QR de préstamo generado"
-                  });
-    
-                  const orderId = newOrderRef.key; // Obtén el ID de la orden creada
-                  const newQrData = `Pre,Us:${user.uid},So:${orderId},${details}`;
-                  setQrData(newQrData); // Aquí se establece el valor del QR
-                  setShowQR(true); // Aquí se muestra el QR
-    
-                  // Actualiza la orden con los datos del QR
-                  await update(newOrderRef, { qrCode: newQrData });
-    
-                  Alert.alert("Pedido realizado", "Tu pedido ha sido agregado exitosamente.");
-                } catch (e) {
-                  console.error("Error al agregar o actualizar el pedido en el usuario: " + e.toString());
-                  Alert.alert("Error", "No se pudo realizar el pedido.");
-                }
-              },
-            },
-          ]
-        );
-      } else {
-        Alert.alert("Error", "No has seleccionado ningún producto.");
-      }
-    };  
+    if (details) {
+      Alert.alert(t("order.confirmOrder"), t("order.confirmOrderMessage"), [
+        {
+          text: t("order.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("order.confirm"),
+          onPress: async () => {
+            try {
+              const database = getDatabase();
+              const orderRef = ref(database, `loans/${user.uid}/orders`);
+              const newOrderRef = push(orderRef);
+
+              await set(newOrderRef, {
+                details: details,
+                createdAt: obtenerFechaActualFormateada(),
+                status: "QR de préstamo generado",
+              });
+
+              const orderId = newOrderRef.key;
+              const newQrData = `Pre,Us:${user.uid},So:${orderId},${details}`;
+              setQrData(newQrData);
+              setShowQR(true);
+
+              await update(newOrderRef, { qrCode: newQrData });
+
+              Alert.alert(t("order.orderPlaced"), t("order.orderAdded"));
+            } catch (e) {
+              console.error(
+                "Error al agregar o actualizar el pedido en el usuario: " +
+                  e.toString()
+              );
+              Alert.alert(t("order.error"), t("order.orderFailed"));
+            }
+          },
+        },
+      ]);
+    } else {
+      Alert.alert(t("order.error"), t("order.noProductSelected"));
+    }
+  };
 
   const closeQR = () => {
     setShowQR(false);
-    setMaterial(material.map(item => ({ ...item, quantity: 0 })));
+    setMaterial(material.map((item) => ({ ...item, quantity: 0 })));
   };
 
   const images = {
-    hdmi: require("../assets/hdmi.png"),
-    ethernet: require("../assets/ethernet.png"),
-    extension: require("../assets/extension.png"),
-    adaptador: require("../assets/adaptador.png"),
+    hdmi: require("../../assets/hdmi.png"),
+    ethernet: require("../../assets/ethernet.png"),
+    extension: require("../../assets/extension.png"),
+    adaptador: require("../../assets/adaptador.png"),
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.headerText}>Elige tus artículos</Text>
+      <Text style={styles.headerText}>{t("order.chooseItems")}</Text>
       {material.map((item) => (
         <View key={item.id} style={styles.card}>
           <Image
@@ -207,7 +215,7 @@ export default function Order() {
               </TouchableOpacity>
             </View>
           ) : (
-            <Text>No hay stock disponible</Text>
+            <Text>{t("order.noStock")}</Text>
           )}
         </View>
       ))}
@@ -215,16 +223,15 @@ export default function Order() {
         style={styles.finalizeOrderButton}
         onPress={finalizeOrder}
       >
-        <Text style={styles.finalizeOrderButtonText}>Finalizar pedido</Text>
+        <Text style={styles.finalizeOrderButtonText}>
+          {t("order.finalizeOrder")}
+        </Text>
       </TouchableOpacity>
       <Modal visible={showQR} transparent={true}>
         <View style={styles.modalView}>
           <QRCode value={qrData} size={200} />
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={closeQR}
-          >
-            <Text style={styles.closeButtonText}>Cerrar</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={closeQR}>
+            <Text style={styles.closeButtonText}>{t("Cerrar")}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -271,15 +278,6 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 5,
   },
-  quantityInput: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    textAlign: "center",
-    width: 50,
-    height: 40,
-    fontSize: 18,
-    marginHorizontal: 5,
-  },
   finalizeOrderButton: {
     backgroundColor: "#007bff",
     padding: 12,
@@ -303,18 +301,18 @@ const styles = StyleSheet.create({
   },
   modalView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   closeButton: {
     marginTop: 20,
     padding: 10,
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     borderRadius: 5,
   },
   closeButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
   },
 });

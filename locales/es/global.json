@@ -1,0 +1,64 @@
+{
+  "home": {
+    "welcome": "¡Bienvenido a TechBox!",
+    "tips": "Tips para iniciar rápido"
+  },
+  "carousel": {
+    "slides": [
+      {
+        "text": "Debajo tienes una barra de navegación, haz clic ahí"
+      },
+      {
+        "text": "Selecciona los artículos que necesites"
+      },
+      {
+        "text": "Hacer clic en el botón de “Finalizar pedido”"
+      },
+      {
+        "text": "¡Listo!, solo recuerda devolver tus artículos a tiempo."
+      }
+    ]
+  },
+  "order": {
+    "chooseItems": "Elige tus artículos",
+    "noStock": "No hay stock disponible",
+    "finalizeOrder": "Finalizar pedido",
+    "error": "Error",
+    "confirmOrder": "Confirmar pedido",
+    "confirmOrderMessage": "¿Estás seguro de que quieres finalizar el pedido?",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "notAuthenticated": "No hay un usuario autenticado",
+    "notEnoughInventory": "No hay suficiente inventario para uno o más artículos seleccionados.",
+    "orderPlaced": "Pedido realizado",
+    "orderAdded": "Tu pedido ha sido agregado exitosamente.",
+    "available": "Disponible",
+    "availableStock": "Hay {{count}} disponibles de este material.",
+    "orderFailed": "No se pudo realizar el pedido.",
+    "noProductSelected": "Ningún producto seleccionado."
+  },
+  "return": {
+    "noPendingRequests": "No tienes solicitudes pendientes",
+    "returnedSuccessfully": "Préstamo devuelto exitosamente",
+    "return": "Regresar",
+    "close": "Cerrar",
+    "returned": "Devuelto",
+    "returnRequestMarked": "El pedido ha sido marcado para devolución.",
+    "orderReturned": "Pedido devuelto",
+    "qrReturnGenerated": "QR de devolución generado",
+    "returnRequestFailed": "Error al marcar la solicitud de devolución",
+    "details": "Detalles",
+    "date": "Fecha",
+    "status": "Estatus"
+  },
+  "tabs": {
+    "uno": "Inicio",
+    "dos": "Realizar pedido",
+    "tres": "Devolución",
+    "main": "Pantalla principal"
+  },
+  "drawer": {
+    "switch": "Cambiar a Inglés",
+    "logout": "Cerrar sesión"
+  }
+}
