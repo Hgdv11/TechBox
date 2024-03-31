@@ -35,7 +35,8 @@
     "available": "Available",
     "availableStock": "There are {{count}} available of this material.",
     "orderFailed": "Order failed.",
-    "noProductSelected": "No product selected."
+    "noProductSelected": "No product selected.",
+    "close": "Close"
   },
   "return": {
     "noPendingRequests": "No pending requests",
