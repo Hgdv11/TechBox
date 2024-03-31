@@ -35,7 +35,8 @@
     "available": "Disponible",
     "availableStock": "Hay {{count}} disponibles de este material.",
     "orderFailed": "No se pudo realizar el pedido.",
-    "noProductSelected": "Ningún producto seleccionado."
+    "noProductSelected": "Ningún producto seleccionado.",
+    "close": "Cerrar"
   },
   "return": {
     "noPendingRequests": "No tienes solicitudes pendientes",
