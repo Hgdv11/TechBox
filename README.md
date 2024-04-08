@@ -9,8 +9,8 @@
 <p float="left">
   <img src="/assets/screen1.png" width="100" />
   <img src="/assets/screen2.jpeg" width="100" /> 
-  <img src="/assets/screen3.png" width="100" />
-  <img src="/assets/screen4.png" width="100" />
+  <img src="/assets/screen3.jpeg" width="100" />
+  <img src="/assets/screen4.jpeg" width="100" />
 </p>
 
 <h2>🧐 Characteristics</h2>
