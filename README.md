@@ -6,7 +6,12 @@
 
 <h2>🚀 Demo</h2>
 
-(Imagen demostrativa)
+<p float="left">
+  <img src="/assets/screen1.png" width="100" />
+  <img src="/assets/screen2.jpeg" width="100" /> 
+  <img src="/assets/screen3.png" width="100" />
+  <img src="/assets/screen4.png" width="100" />
+</p>
 
 <h2>🧐 Characteristics</h2>
 
@@ -27,8 +32,8 @@
 <p><a href="https://github.com/Hgdv11">Hugo Chaparro<a></p>
 <p><a href="https://github.com/aahpichardo">Angel Hernandez<a></p>
 <p><a href="https://github.com/julioerives">Julio Erives<a></p> 
-<p>-</p>
+<p><a href="https://github.com/SantiagerArmendariz">Santiago Armendariz<a></p>
 
-<p><a href="https://github.com/julioerives/" target="_blank">Click here to see the Website repository</a><p>
+<p><a href="https://github.com/julioerives/techBox" target="_blank">Click here to see the Website repository</a><p>
 <p><a href="https://github.com/aahpichardo/techbox-microcontrolador" target="_blank">Click here to see the IoT repository</a><p>
 
